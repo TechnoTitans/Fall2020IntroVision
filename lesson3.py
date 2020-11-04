@@ -32,8 +32,8 @@ while True:
 
     # === Feature Extraction: find desired "feature" or in our case object in frame ===
 
-    lower_color_bound = np.array([75, 140, 210])
-    upper_color_bound = np.array([115, 190, 255])
+    lower_color_bound = np.array([60, 100, 170])
+    upper_color_bound = np.array([150, 230, 255])
 
     # Params: source image, lower bound, upper bound
     # if the hsv values of a pixel on the frame are within the lower and upper bounds, then that pixel
@@ -60,19 +60,59 @@ while True:
     # to isolate the desired contour and draw a box around it
     # Use this: https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_contours/py_contour_features/py_contour_features.html
 
+    # Area
+    # Orientation
+    # Aspect Ratio
+
+    # For every feature candidate we want to generate a score
+    # candidate with max score, is our object
+
+    if len(contours) == 0:
+        continue
+
+    area_weight = 0.4
+    ideal_area = 30000
+
+    orientation_weight = .3
+
+    aspect_ratio_weight = 0.3
+    ideal_aspect_ratio = 0.636363636
+
+    scores = np.zeros_like(contours)
+
     # creates an 0 np array of same outer dimensions as input param
-    aspect_ratios = np.zeros_like(contours)
-
     for i in range(len(contours)):
-        # Params: contour | Returns: x, y, w, h of bounding rectangle
-        x, y, w, h = cv2.boundingRect(contours[i])
+        # Area Metric
+        contour_area = cv2.contourArea(contours[i])
+        # https://numpy.org/doc/stable/reference/generated/numpy.clip.html
+        area_score = np.clip(contour_area / ideal_area, 0, 1)
 
-        aspect_ratios[i] = float(w) / h
+        # Orientation Metric
+        try:
+            (x, y), (MA, ma), angle = cv2.fitEllipse(contours[i])
 
-    # finds index of maximum value in np array
-    max_aspect_ratio_contour_index = np.argmax(aspect_ratios)
+            orientation_score = np.abs((1/90)*(angle - 90))
+        except:
+            orientation_score = 0
 
-    x, y, w, h = cv2.boundingRect(contours[max_aspect_ratio_contour_index])
+        # Orientation Metric
+        try:
+            rect = cv2.minAreaRect(contours[i])
+
+            shorter_side = np.min(rect[1][0], rect[1][1])
+            longer_side = np.max(rect[1][0], rect[1][1])
+
+            aspect_ratio = shorter_side / longer_side
+
+            aspect_ratio_score = -1 * np.abs((1/ideal_aspect_ratio)*(aspect_ratio-ideal_aspect_ratio)) + 1
+        except:
+            aspect_ratio_score = 0
+
+        scores[i] = area_weight * area_score + orientation_weight * orientation_score + aspect_ratio_weight * aspect_ratio_score
+
+    best_contour = contours[np.argmax(scores)]
+
+    x, y, w, h = cv2.boundingRect(best_contour)
 
     # params: source image, top left rectangle coordinate tuple, bottom right rectangle coordinate tuple,
     # tuple of rectangle color, rectangle width (in pixels)
