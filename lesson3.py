@@ -73,9 +73,9 @@ while True:
     area_weight = 0.4
     ideal_area = 30000
 
-    orientation_weight = .3
+    orientation_weight = 0
 
-    aspect_ratio_weight = 0.3
+    aspect_ratio_weight = 0.6
     ideal_aspect_ratio = 0.636363636
 
     scores = np.zeros_like(contours)
@@ -88,14 +88,15 @@ while True:
         area_score = np.clip(contour_area / ideal_area, 0, 1)
 
         # Orientation Metric
+        # Try to execute this code, if an issue pops up, do the except
         try:
             (x, y), (MA, ma), angle = cv2.fitEllipse(contours[i])
 
-            orientation_score = np.abs((1/90)*(angle - 90))
+            orientation_score = np.abs((1 / 90) * (angle - 90))
         except:
             orientation_score = 0
 
-        # Orientation Metric
+        # Aspect Ratio Metric
         try:
             rect = cv2.minAreaRect(contours[i])
 
@@ -104,7 +105,7 @@ while True:
 
             aspect_ratio = shorter_side / longer_side
 
-            aspect_ratio_score = -1 * np.abs((1/ideal_aspect_ratio)*(aspect_ratio-ideal_aspect_ratio)) + 1
+            aspect_ratio_score = -1 * np.abs((1 / ideal_aspect_ratio) * (aspect_ratio - ideal_aspect_ratio)) + 1
         except:
             aspect_ratio_score = 0
 
