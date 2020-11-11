@@ -70,6 +70,10 @@ while True:
     if len(contours) == 0:
         continue
 
+    scores = np.zeros_like(contours)
+
+    # delete below
+
     area_weight = 0.4
     ideal_area = 30000
 
@@ -77,8 +81,6 @@ while True:
 
     aspect_ratio_weight = 0.6
     ideal_aspect_ratio = 0.636363636
-
-    scores = np.zeros_like(contours)
 
     # creates an 0 np array of same outer dimensions as input param
     for i in range(len(contours)):
@@ -110,6 +112,8 @@ while True:
             aspect_ratio_score = 0
 
         scores[i] = area_weight * area_score + orientation_weight * orientation_score + aspect_ratio_weight * aspect_ratio_score
+
+    # delete above
 
     best_contour = contours[np.argmax(scores)]
 
