@@ -12,6 +12,8 @@ def print_color(event, x, y, flags, param):
 
 
 while True:
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
     # Capture frame-by-frame
     ret, frame = cap.read()
 
@@ -32,7 +34,7 @@ while True:
 
     # === Feature Extraction: find desired "feature" or in our case object in frame ===
 
-    lower_color_bound = np.array([60, 100, 170])
+    lower_color_bound = np.array([149, 229, 254])
     upper_color_bound = np.array([150, 230, 255])
 
     # Params: source image, lower bound, upper bound
@@ -40,6 +42,7 @@ while True:
     # is marked as a 1, and other pixels are marked as 0s
     # This type of image is called a mask and only has 0s or 1s (colors are defined by one bit)
     color_mask = cv2.inRange(blur, lower_color_bound, upper_color_bound)
+
     cv2.imshow('Mask Image', color_mask)
 
     # Params: Source image, use default, use default (google if you really want to know)
@@ -70,7 +73,7 @@ while True:
     if len(contours) == 0:
         continue
 
-    scores = np.zeros_like(contours)
+    scores = np.zeros(len(contours))
 
     # delete below
 
@@ -124,10 +127,6 @@ while True:
     frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
 
     cv2.imshow("Image with bounding box", frame)
-
-    # if 1 is pressed break loop
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
 
 cap.release()
 cv2.destroyAllWindows()
