@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-# Specifies which camera to use
+# Specifies which camera to use: Start at 0, and go up until you find the cam u wanna use
 cap = cv2.VideoCapture(2)
 
 
@@ -14,6 +14,7 @@ def print_color(event, x, y, flags, param):
 while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
     # Capture frame-by-frame
     ret, frame = cap.read()
 
@@ -34,14 +35,14 @@ while True:
 
     # === Feature Extraction: find desired "feature" or in our case object in frame ===
 
-    lower_color_bound = np.array([149, 229, 254])
-    upper_color_bound = np.array([150, 230, 255])
+    lower_color_bound = np.array([5, 64, 150])
+    upper_color_bound = np.array([39, 224, 255])
 
     # Params: source image, lower bound, upper bound
     # if the hsv values of a pixel on the frame are within the lower and upper bounds, then that pixel
     # is marked as a 1, and other pixels are marked as 0s
     # This type of image is called a mask and only has 0s or 1s (colors are defined by one bit)
-    color_mask = cv2.inRange(blur, lower_color_bound, upper_color_bound)
+    color_mask = cv2.inRange(hsv_frame, lower_color_bound, upper_color_bound)
 
     cv2.imshow('Mask Image', color_mask)
 
@@ -75,7 +76,7 @@ while True:
 
     scores = np.zeros(len(contours))
 
-    # delete below
+    # delete below TRY NOT TO COPY HEREEEEEEE YOU CAN COPY ABOVE IF YOU REALLY HAVE TO BUT DONT COPY BELOW
 
     area_weight = 0.4
     ideal_area = 30000

@@ -23,7 +23,7 @@ cap = cv2.VideoCapture(2)
 while True:
     ret, frame = cap.read()
 
-    blur = cv2.GaussianBlur(frame, (9, 9), 0)
+    blur = cv2.GaussianBlur(frame, (15, 15), 0)
 
     # Show the original image.
     cv2.imshow('Frame', frame)
